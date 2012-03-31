@@ -2,10 +2,12 @@ package pq
 
 import (
 	"github.com/bmizerany/assert"
+	"database/sql/driver"
 	"io"
 	"net"
 	"os"
 	"testing"
+	"fmt"
 )
 
 func TestConnPrepareErr(t *testing.T) {
@@ -30,19 +32,19 @@ func TestConnPrepare(t *testing.T) {
 	assert.Equalf(t, nil, err, "%v", err)
 	assert.Equal(t, 2, stmt.NumInput())
 
-	rows, err := stmt.Query([]interface{}{"testing", true})
+	rows, err := stmt.Query([]driver.Value{"testing", true})
 	assert.Equalf(t, nil, err, "%v", err)
 	assert.Equal(t, []string{"foo"}, rows.Columns())
 
-	dest := make([]interface{}, 1)
+	dest := make([]driver.Value, 1)
 	err = rows.Next(dest)
 	assert.Equalf(t, nil, err, "%v", err)
-	assert.Equal(t, []interface{}{"7"}, dest)
+	assert.Equal(t, []driver.Value{"7"}, dest)
 
 	err = rows.Next(dest)
 	assert.Equalf(t, io.EOF, err, "%v", err)
 
-	rows, err = stmt.Query([]interface{}{"testing", false})
+	rows, err = stmt.Query([]driver.Value{"testing", false})
 	assert.Equalf(t, nil, err, "%v", err)
 	assert.Equal(t, []string{"foo"}, rows.Columns())
 
@@ -84,8 +86,10 @@ func TestConnNotify(t *testing.T) {
 }
 
 func TestAuthCleartextPassword(t *testing.T) {
-	c, err := OpenRaw("postgres://gopqtest:foo@localhost:5432/" + os.Getenv("USER"))
-	//c, err := OpenRaw("postgres://gopqtest@localhost:5432/"+os.Getenv("USER"))
+	//	c, err := OpenRaw("postgres://gopqtest:foo@localhost:5432/" + os.Getenv("USER"))
+
+	c, err := OpenRaw(fmt.Sprintf("postgres://%s@localhost:5432/gopqtest",
+		os.Getenv("USER")))
 	assert.Equalf(t, nil, err, "%v", err)
 
 	s, err := c.Prepare("SELECT 1")

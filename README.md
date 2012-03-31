@@ -1,5 +1,27 @@
 # pq.go - A pure Go Postgres driver (works with database/sql)
 
+# This was forked from github.com/bmizerany/pg.go to bring it up to date with go1
+
+# Installation 
+building, testing and installation is now done with the go tool
+
+$ cd pq.go && go install .
+
+# Running Tests
+You must create a test database named gopqtest owned by you
+
+$ createdb -Upostgres -Oyourlogin gopqtest
+
+run tests:
+
+$ go test
+
+you can drop the db when you're finished testing.
+
+$ dropdb -Upostgres gopqtest
+
+
+
 ## Connecting
 		import (
 			"exp/sql"

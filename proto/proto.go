@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"database/sql/driver"
 )
 
 type Type byte
@@ -108,7 +109,7 @@ func (cn *Conn) Parse(name, query string) error {
 	return cn.flush('P')
 }
 
-func (cn *Conn) Bind(portal, stmt string, args ...interface{}) error {
+func (cn *Conn) Bind(portal, stmt string, args ...driver.Value) error {
 	cn.b.WriteCString(portal)
 	cn.b.WriteCString(stmt)
 

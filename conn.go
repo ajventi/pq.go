@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"github.com/bmizerany/pq.go/proto"
+	"github.com/ajventi/pq.go/proto"
 	"io"
 	"net"
 	"net/url"
@@ -122,7 +122,7 @@ func New(rwc io.ReadWriteCloser, params proto.Values, pw string) (*Conn, error) 
 	panic("not reached")
 }
 
-func (cn *Conn) Exec(query string, args []interface{}) (driver.Result, error) {
+func (cn *Conn) Exec(query string, args []driver.Value) (driver.Result, error) {
 	if len(args) == 0 {
 		err := cn.p.SimpleQuery(query)
 		if err != nil {
@@ -294,7 +294,7 @@ func (stmt *Stmt) NumInput() int {
 	return len(stmt.params)
 }
 
-func (stmt *Stmt) Exec(args []interface{}) (driver.Result, error) {
+func (stmt *Stmt) Exec(args []driver.Value) (driver.Result, error) {
 	// NOTE: should return []drive.Result, because a PS can have more
 	// than one statement and recv more than one tag.
 	rows, err := stmt.Query(args)
@@ -317,7 +317,7 @@ func (stmt *Stmt) Exec(args []interface{}) (driver.Result, error) {
 	return driver.RowsAffected(0), nil
 }
 
-func (stmt *Stmt) Query(args []interface{}) (driver.Rows, error) {
+func (stmt *Stmt) Query(args []driver.Value) (driver.Rows, error) {
 	// For now, we'll just say they're strings
 	err := stmt.p.Bind(stmt.Name, stmt.Name, args...)
 	if err != nil {
@@ -386,7 +386,7 @@ func (r *Rows) Columns() []string {
 	return r.names
 }
 
-func (r *Rows) Next(dest []interface{}) (err error) {
+func (r *Rows) Next(dest []driver.Value) (err error) {
 	if r.done {
 		return io.EOF
 	}
